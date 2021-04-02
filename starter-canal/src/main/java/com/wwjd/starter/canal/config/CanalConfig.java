@@ -71,7 +71,7 @@ public class CanalConfig {
         /**
          * canal 服务器地址，默认是本地的环回地址
          */
-        private String host = "127.1.1.1";
+        private String host = "127.0.0.1";
 
         /**
          * canal 服务设置的端口，默认 11111
@@ -81,12 +81,12 @@ public class CanalConfig {
         /**
          * 集群 设置的用户名
          */
-        private String userName = "";
+        private String userName = "canal";
 
         /**
          * 集群 设置的密码
          */
-        private String password = "";
+        private String password = "canal";
 
         /**
          * 批量从 canal 服务器获取数据的最多数目

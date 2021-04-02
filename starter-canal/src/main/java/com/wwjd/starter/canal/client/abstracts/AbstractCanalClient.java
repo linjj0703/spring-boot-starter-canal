@@ -40,7 +40,7 @@ public abstract class AbstractCanalClient implements CanalClient {
 	/**
 	 * 转换工厂类
 	 */
-	protected final TransponderFactory factory;
+	protected final TransponderFactory factory = DefaultMessageTransponder::new;
 	
 	/**
 	 * 构造方法，初始化 canal 的配置以及转换信息的工厂实例
@@ -57,8 +57,7 @@ public abstract class AbstractCanalClient implements CanalClient {
 		Objects.requireNonNull(canalConfig, "transponderFactory 不能为空!");
 		//初始化配置
 		this.canalConfig = canalConfig;
-		this.factory = (connector, config,listeners, annoListeners) -> new DefaultMessageTransponder(connector, config, listeners, annoListeners);
-		;
+		// this.factory = (connector, config, listeners, annoListeners) -> new DefaultMessageTransponder(connector, config, listeners, annoListeners);
 	}
 	
 	/**

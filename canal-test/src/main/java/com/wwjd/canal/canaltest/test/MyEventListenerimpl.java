@@ -18,7 +18,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MyEventListenerimpl extends DealCanalEventListener {
-	
+	/**
+	 * 注册责任链的所有bean
+	 * @param insertOption
+	 * @param deleteOption
+	 * @param updateOption
+	 */
 	@Autowired
 	public MyEventListenerimpl(@Qualifier("realInsertOptoin") InsertOption insertOption, @Qualifier("realDeleteOption") DeleteOption deleteOption, @Qualifier("realUpdateOption") UpdateOption updateOption) {
 		super(insertOption, deleteOption, updateOption);

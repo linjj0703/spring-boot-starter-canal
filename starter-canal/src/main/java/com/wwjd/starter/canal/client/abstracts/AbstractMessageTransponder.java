@@ -114,15 +114,10 @@ public abstract class AbstractMessageTransponder implements MessageTransponder {
 				long batchId = message.getId();
 				//消息数
 				int size = message.getEntries().size();
-				//debug 模式打印消息数
-				if (logger.isDebugEnabled()) {
-					logger.debug("{}: 从 canal 服务器获取消息： >>>>> 数:{}", threadName, size);
-				}
+				logger.info("{}: 从 canal 服务器获取消息： >>>>> 数:{}", threadName, size);
 				//若是没有消息
 				if (batchId == -1 || size == 0) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("{}: 没有任何消息啊，我休息{}毫秒", threadName, interval);
-					}
+					logger.info("{}: 没有任何消息啊，我休息{}毫秒", threadName, interval);
 					//休息
 					Thread.sleep(interval);
 				} else {
@@ -132,9 +127,7 @@ public abstract class AbstractMessageTransponder implements MessageTransponder {
 				//确认消息已被处理完
 				connector.ack(batchId);
 				//若是 debug模式
-				if (logger.isDebugEnabled()) {
-					logger.debug("{}: 确认消息已被消费，消息ID:{}", threadName, batchId);
-				}
+				logger.info("{}: 确认消息已被消费，消息ID:{}", threadName, batchId);
 			} catch (CanalClientException e) {
 				//每次错误，重试次数减一处理
 				errorCount--;
@@ -154,13 +147,13 @@ public abstract class AbstractMessageTransponder implements MessageTransponder {
 				if (errorCount <= 0) {
 					//停止 canal 客户端
 					stop();
-					logger.info("{}: canal 客户端已停止... ", Thread.currentThread().getName());
+					logger.error("{}: canal 客户端已停止... ", Thread.currentThread().getName());
 				}
 			}
 		}
 		//停止 canal 客户端
 		stop();
-		logger.info("{}: canal 客户端已停止. ", Thread.currentThread().getName());
+		logger.error("{}: canal 客户端已停止. ", Thread.currentThread().getName());
 	}
 	
 	/**

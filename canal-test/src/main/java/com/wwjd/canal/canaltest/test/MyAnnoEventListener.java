@@ -1,6 +1,7 @@
 package com.wwjd.canal.canaltest.test;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
+import com.wwjd.canal.canaltest.mapper.Mapper;
 import com.wwjd.starter.canal.annotation.CanalEventListener;
 import com.wwjd.starter.canal.annotation.content.DeleteListenPoint;
 import com.wwjd.starter.canal.annotation.content.InsertListenPoint;
@@ -10,8 +11,10 @@ import com.wwjd.starter.canal.annotation.table.CreateIndexListenPoint;
 import com.wwjd.starter.canal.annotation.table.CreateTableListenPoint;
 import com.wwjd.starter.canal.annotation.table.DropTableListenPoint;
 import com.wwjd.starter.canal.client.core.CanalMsg;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -23,14 +26,17 @@ import java.util.List;
  * @Modified_By 阿导 2018/5/28 17:31
  */
 @CanalEventListener
+@Slf4j
 public class MyAnnoEventListener {
+	@Resource
+	private Mapper mapper;
 	
 	@InsertListenPoint
 	public void onEventInsertData(CanalMsg canalMsg, CanalEntry.RowChange rowChange) {
 		System.out.println("======================注解方式（新增数据操作）==========================");
 		List<CanalEntry.RowData> rowDatasList = rowChange.getRowDatasList();
 		for (CanalEntry.RowData rowData : rowDatasList) {
-			String sql = "use " + canalMsg.getSchemaName() + ";\n";
+			String sql = "use `" + canalMsg.getSchemaName() + "`;\n";
 			StringBuffer colums = new StringBuffer();
 			StringBuffer values = new StringBuffer();
 			rowData.getAfterColumnsList().forEach((c) -> {
@@ -43,7 +49,6 @@ public class MyAnnoEventListener {
 			System.out.println(sql);
 		}
 		System.out.println("\n======================================================");
-		
 	}
 	
 	@UpdateListenPoint
@@ -52,7 +57,7 @@ public class MyAnnoEventListener {
 		List<CanalEntry.RowData> rowDatasList = rowChange.getRowDatasList();
 		for (CanalEntry.RowData rowData : rowDatasList) {
 			
-			String sql = "use " + canalMsg.getSchemaName() + ";\n";
+			String sql = "use `" + canalMsg.getSchemaName() + "`;\n";
 			StringBuffer updates = new StringBuffer();
 			StringBuffer conditions = new StringBuffer();
 			rowData.getAfterColumnsList().forEach((c) -> {
@@ -64,19 +69,23 @@ public class MyAnnoEventListener {
 			});
 			sql += "UPDATE " + canalMsg.getTableName() + " SET " + updates.substring(0, updates.length() - 1) + " WHERE " + conditions;
 			System.out.println(sql);
+			try {
+				mapper.doOption(sql);
+			} catch (Exception e) {
+				log.error("执行sql异常 :{}", e.getMessage(), e);
+			}
 		}
 		System.out.println("\n======================================================");
 	}
-	
+
 	@DeleteListenPoint
 	public void onEventDeleteData(CanalEntry.RowChange rowChange, CanalMsg canalMsg) {
-		
 		System.out.println("======================注解方式（删除数据操作）==========================");
 		List<CanalEntry.RowData> rowDatasList = rowChange.getRowDatasList();
 		for (CanalEntry.RowData rowData : rowDatasList) {
 			
 			if (!CollectionUtils.isEmpty(rowData.getBeforeColumnsList())) {
-				String sql = "use " + canalMsg.getSchemaName() + ";\n";
+				String sql = "use `" + canalMsg.getSchemaName() + "`;\n";
 				
 				sql += "DELETE FROM " + canalMsg.getTableName() + " WHERE ";
 				StringBuffer idKey = new StringBuffer();
@@ -102,30 +111,29 @@ public class MyAnnoEventListener {
 	@CreateTableListenPoint
 	public void onEventCreateTable(CanalEntry.RowChange rowChange) {
 		System.out.println("======================注解方式（创建表操作）==========================");
-		System.out.println("use " + rowChange.getDdlSchemaName() + ";\n" + rowChange.getSql());
+		System.out.println("use `" + rowChange.getDdlSchemaName() + "`;\n" + rowChange.getSql());
 		System.out.println("\n======================================================");
 	}
 	
 	@DropTableListenPoint
 	public void onEventDropTable(CanalEntry.RowChange rowChange) {
 		System.out.println("======================注解方式（删除表操作）==========================");
-		System.out.println("use " + rowChange.getDdlSchemaName() + ";\n" + rowChange.getSql());
+		System.out.println("use `" + rowChange.getDdlSchemaName() + "`;\n" + rowChange.getSql());
 		System.out.println("\n======================================================");
 	}
 	
 	@AlertTableListenPoint
 	public void onEventAlertTable(CanalEntry.RowChange rowChange) {
 		System.out.println("======================注解方式（修改表信息操作）==========================");
-		System.out.println("use " + rowChange.getDdlSchemaName() + ";\n" + rowChange.getSql());
+		System.out.println("use `" + rowChange.getDdlSchemaName() + "`;\n" + rowChange.getSql());
 		System.out.println("\n======================================================");
 	}
 	
 	@CreateIndexListenPoint
 	public void onEventCreateIndex(CanalMsg canalMsg,CanalEntry.RowChange rowChange){
 		System.out.println("======================注解方式（创建索引操作）==========================");
-		System.out.println("use " + canalMsg.getSchemaName()+ ";\n" + rowChange.getSql());
+		System.out.println("use `" + canalMsg.getSchemaName()+ "`;\n" + rowChange.getSql());
 		System.out.println("\n======================================================");
-		
 	}
 	
 	
